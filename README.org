@@ -17,11 +17,13 @@
 *** How to install elnode in less than a minute! 
 Assuming you're running GNU Emacs 24+, evaluate the following code in your *scratch* buffer. 
 
+#+BEGIN_EXAMPLE
   (require 'package)
   (add-to-list 'package-archives 
       '("marmalade" .
         "http://marmalade-repo.org/packages/"))
   (package-initialize)
+#+END_EXAMPLE
   
 Now, `M-x package-refresh-contents`. Finally, `M-x package-install RET elnode RET`.
   
