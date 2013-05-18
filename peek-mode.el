@@ -110,6 +110,4 @@
  
 (provide 'peek-mode)
  
-(elnode-start 'peek-mode-dispatcher-handler :port 8008 :host "riley")
- 
 ;;; peek-mode.el ends here

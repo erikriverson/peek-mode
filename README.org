@@ -1,7 +1,5 @@
 
 * peek-mode
-
-
 ** Introduction
  peek-mode is a minor mode that publishes live Emacs buffers through
  an [[http://elnode.org/][elnode]] server under
@@ -15,15 +13,43 @@
  <https://github.com/skeeto/emacs-http-server>. I consider peek-mode
  as "impatient-mode ported to elnode".
 
+** Installation 
+*** How to install elnode in less than a minute! 
+Assuming you're running GNU Emacs 24+, evaluate the following code in your *scratch* buffer. 
+
+#+begin_src emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives 
+      '("marmalade" .
+        "http://marmalade-repo.org/packages/"))
+  (package-initialize)
+#+end_src
+  
+Now, `M-x package-refresh-contents`. Finally, `M-x package-install RET elnode RET`.
+  
+Elnode should be installed, and your load-path automatically modified
+so that it is accessible. Yay for package managers!
+
+*** peek-mode
+Simply clone this repository, make sure peek-mode.el is in your
+load-path, and then:
+
+(require 'peek-mode)
+
 ** Usage
-Start the elnode server (`M-x elnode-start'), launch a local browser,
-and visit http://<server>:<port>/peek/. There will be a listing of all
-the buffers that currently have peek-mode enabled. You can evaluate
-the line below to start the elnode server on localhost:8008 with the
-proper dispatcher, assuming the code in peek-model.el is available by
-having loaded it. Dispatcher is elnode's term for a function that
-handles http requests.
+To use peek-mode, two things have to be in place. `peek-mode` must be
+enabled in the buffer(s) you want to peek at, and the elnode server has to be running. 
+
+To start the elnode server on port 8008 on your local machine:
 
 #+begin_src emacs-lisp
   (elnode-start 'peek-mode-dispatcher-handler :port 8008 :host "localhost")
 #+end_src
+
+To test, try enabling peek-mode in your *scratch* buffer: `M-x peek-mode`. 
+
+Then launch a web browser, and visit
+http://<server>:<port>/peek/. There will be a listing of all the
+buffers that currently have peek-mode enabled. Click on one to view
+it, then go back to emacs and make some change in that buffer. You
+should see the changes immediately reflected in the browser. 
