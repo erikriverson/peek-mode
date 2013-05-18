@@ -23,5 +23,7 @@ the line below to start the elnode server on localhost:8008 with the
 proper dispatcher, assuming the code in peek-model.el is available by
 having loaded it. Dispatcher is elnode's term for a function that
 handles http requests.
- 
-(elnode-start 'peek-mode-dispatcher-handler :port 8008 :host "localhost")
+
+#+begin_src emacs-lisp
+  (elnode-start 'peek-mode-dispatcher-handler :port 8008 :host "localhost")
+#+end_src
