@@ -40,7 +40,8 @@ load-path, and then:
 
 ** Usage
 To use peek-mode, two things have to be in place. `peek-mode` must be
-enabled in the buffer(s) you want to peek at, and the elnode server has to be running. 
+enabled in the buffer(s) you want to peek at, and the elnode server
+has to be running.
 
 To start the elnode server on port 8008 on your local machine:
 

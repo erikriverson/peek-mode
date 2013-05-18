@@ -31,6 +31,61 @@
 ;; having loaded it. 
 ;; (elnode-start 'peek-mode-dispatcher-handler :port 8008 :host "localhost")
 
+;; Because html-mode buffers are sent raw, you can use peek-mode
+;; see your edits to an HTML document live!
+ 
+;; To receive updates the browser issues a long poll on the client
+;; waiting for the buffer to change -- server push. The response
+;; happens in an `after-change-functions' hook. Buffers that do not
+;; run these hooks will not be displayed live to clients.
+ 
+;;; Code:
+ 
+(require 'cl)
+(require 'url-util)
+(require 'elnode)
+ 
+(defgroup peek-mode nil
+  "Serve buffers live over HTTP using Emacs elnode as a backend."
+  :group 'comm)
+ 
+(defvar peek-mode-map (make-sparse-keymap)
+  "Keymap for peek-mode.")
+ 
+(defvar peek-client-list ()
+  "List of client processes watching the current buffer.")
+ 
+(defvar peek-last-state 0
+  "State sequence number.")
+ 
+(defvar peek-related-files nil
+  "Files that seem to be related to this buffer")
+ 
+;;;###autoload
+(define-minor-mode peek-mode
+  "Serves the buffer live over HTTP ."
+  :group 'peek-mode
+  :lighter " peek"
+  :keymap peek-mode-map
+  (make-local-variable 'peek-client-list)
+  (make-local-variable 'peek-last-state)
+  (make-local-variable 'peek-related-files)
+  (if peek-mode
+      (add-hook 'after-change-functions 'peek-on-change nil t)
+    (remove-hook 'after-change-functions 'peek-on-change t)))
+ 
+(defvar peek-shim-root (file-name-directory load-file-name)
+  "Location of data files needed by peek-mode.")
+ 
+(defun peek-buffer-enabled-p (buffer)
+  "Return t if buffer has peek-mode enabled."
+  (and buffer (with-current-buffer (get-buffer buffer) peek-mode)))
+ 
+(defun peek-buffer-list ()
+  "List of all buffers with peek-mode enabled"
+  (remove-if-not 'peek-buffer-enabled-p (buffer-list)))
+ 
+
 (defun peek-serve-buffer-list (httpcon)
   "Serve a list of peekable buffers."
   (elnode-send-html httpcon (concat "<html><head>\n
@@ -94,11 +149,48 @@
   (let ((id (number-to-string peek-last-state))
         (buffer (current-buffer)))
     (elnode-http-start httpcon 200 '("Cache-Control" . "no-cache")
-                                       '("Content-Type" . "text/plain")
+		       '("Content-Type" . "text/plain")
                        '("Connection" . "keep-alive" ))
     (elnode-http-return httpcon
-                                                (concat id " " (buffer-substring-no-properties
-                                                                                (point-min) (point-max))))))
+			(concat id " " (buffer-substring-no-properties
+					(point-min) (point-max))))))
+ 
+
+(defun peek-send-state-ignore-errors (httpcon)
+  (condition-case error-case
+      (peek-send-state httpcon)
+    (error nil)))
+ 
+(defun peek-notify-clients ()
+  (while peek-client-list
+    (peek-send-state-ignore-errors (pop peek-client-list))))
+ 
+(defun peek-on-change (&rest args)
+  "Hook for after-change-functions."
+  (incf peek-last-state)
+ 
+  ;; notify our clients
+  (peek-notify-clients)
+ 
+  ;; notify any clients that we're in the peek-related-files list for
+  (let ((buffer-file (buffer-file-name (current-buffer))))
+    (dolist (buffer (peek-buffer-list))
+      (with-current-buffer buffer
+        (when (member buffer-file peek-related-files)
+          (peek-notify-clients))))))
+ 
+(defun peek-private (httpcon buffer-name)
+  (elnode-send-status httpcon 403
+               (format "Buffer <code>%s</code> is <strong>not-peekable</strong>
+                        or does not exist." buffer-name)))
+ 
+(defun peek-long-poll-receive (httpcon)
+  "Servlet that accepts long poll requests."
+  (let* ((path (elnode-http-pathinfo httpcon))
+                (query (elnode--http-query-to-alist (elnode-http-query httpcon)))
+                (buffer-name (file-name-nondirectory path))
+         (buffer (get-buffer buffer-name))
+         (req-last-id (string-to-number
                                        (or (cdr (assoc "id" query)) "0"))))
     (if (peek-buffer-enabled-p buffer)
         (with-current-buffer buffer
@@ -107,7 +199,4 @@
             (peek-send-state-ignore-errors httpcon)))
       (peek-private httpcon buffer-name)))
   (elnode-defer-now 'peek-long-poll-receive))
- 
-(provide 'peek-mode)
- 
 ;;; peek-mode.el ends here
