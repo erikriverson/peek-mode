@@ -5,7 +5,7 @@
  an [[http://elnode.org/][elnode]] server. This means you can view your emacs buffers in a web
  browser as they change. Toggling on peek-mode in a buffer will
  publish it to the server. To unpublish a buffer, toggle peek-mode
- off. (M-x peek-mode does the toggle.)
+ off. (`M-x peek-mode` does the toggle.)
 
  peek-mode is (very very!) largely based on Brian Taylor's
  <el.wubo@gmail.com> [[https://github.com/netguy204/imp.el][impatient-mode]] . However, impatient-mode does not
@@ -17,13 +17,11 @@
 *** How to install elnode in less than a minute! 
 Assuming you're running GNU Emacs 24+, evaluate the following code in your *scratch* buffer. 
 
-#+begin_src emacs-lisp
   (require 'package)
   (add-to-list 'package-archives 
       '("marmalade" .
         "http://marmalade-repo.org/packages/"))
   (package-initialize)
-#+end_src
   
 Now, `M-x package-refresh-contents`. Finally, `M-x package-install RET elnode RET`.
   
