@@ -199,4 +199,6 @@
             (peek-send-state-ignore-errors httpcon)))
       (peek-private httpcon buffer-name)))
   (elnode-defer-now 'peek-long-poll-receive))
+
+(provide 'peek-mode)
 ;;; peek-mode.el ends here
