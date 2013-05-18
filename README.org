@@ -4,7 +4,7 @@
 
 ** Introduction
  peek-mode is a minor mode that publishes live Emacs buffers through
- an [[http://elnode.org][elnode]] server under
+ an [[http://elnode.org/][elnode]] server under
  http://<server>:<port>/peek/<buffer>. Toggling on peek-mode in a
  buffer will publish it to the server. To unpublish a buffer, toggle
  peek-mode off. (M-x peek-mode does the toggle.)
