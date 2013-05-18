@@ -1,7 +1,7 @@
 ;;; peek-mode.el --- Serve buffers live over HTTP with elnode backend
 ;;; (i.e., impatient-mode ported to elnode)
  
-;; LICENSE
+;; LICENSE: GPL 2 or later
  
 ;; Author: Erik Iverson <erik@sigmafield.org>
 ;; Version: 0.1
