@@ -1,0 +1,27 @@
+
+* peek-mode
+
+
+** Introduction
+ peek-mode is a minor mode that publishes live Emacs buffers through
+ an [[http://elnode.org][elnode]] server under
+ http://<server>:<port>/peek/<buffer>. Toggling on peek-mode in a
+ buffer will publish it to the server. To unpublish a buffer, toggle
+ peek-mode off. (M-x peek-mode does the toggle.)
+
+ peek-mode is (very very!) largely based on Brian Taylor's
+ <el.wubo@gmail.com> [[https://github.com/netguy204/imp.el][impatient-mode]] . However, impatient-mode does not
+ use elnode, but rather a different emacs httpd backend
+ <https://github.com/skeeto/emacs-http-server>. I consider peek-mode
+ as "impatient-mode ported to elnode".
+
+** Usage
+Start the elnode server (`M-x elnode-start'), launch a local browser,
+and visit http://<server>:<port>/peek/. There will be a listing of all
+the buffers that currently have peek-mode enabled. You can evaluate
+the line below to start the elnode server on localhost:8008 with the
+proper dispatcher, assuming the code in peek-model.el is available by
+having loaded it. Dispatcher is elnode's term for a function that
+handles http requests.
+ 
+(elnode-start 'peek-mode-dispatcher-handler :port 8008 :host "localhost")
