@@ -63,7 +63,7 @@
  
 ;;;###autoload
 (define-minor-mode peek-mode
-  "Serves the buffer live over HTTP ."
+  "Serves the buffer live over HTTP."
   :group 'peek-mode
   :lighter " peek"
   :keymap peek-mode-map
@@ -107,7 +107,6 @@
                 (index (expand-file-name "index.html" peek-shim-root))
          (parts (cdr (split-string path "/")))
          (buffer-name (nth 2 parts))
-;;         (file (httpd-clean-path (mapconcat 'identity (nthcdr 3 parts) "/")))
          (file (mapconcat 'identity (nthcdr 3 parts) "/"))
          (buffer (get-buffer buffer-name))
          (buffer-file (buffer-file-name buffer))
@@ -187,15 +186,15 @@
 (defun peek-long-poll-receive (httpcon)
   "Servlet that accepts long poll requests."
   (let* ((path (elnode-http-pathinfo httpcon))
-                (query (elnode--http-query-to-alist (elnode-http-query httpcon)))
-                (buffer-name (file-name-nondirectory path))
+	 (query (elnode--http-query-to-alist (elnode-http-query httpcon)))
+	 (buffer-name (file-name-nondirectory path))
          (buffer (get-buffer buffer-name))
          (req-last-id (string-to-number
-                                       (or (cdr (assoc "id" query)) "0"))))
+		       (or (cdr (assoc "id" query)) "0"))))
     (if (peek-buffer-enabled-p buffer)
         (with-current-buffer buffer
           (if (equal req-last-id peek-last-state)
-                      (push httpcon peek-client-list)
+	      (push httpcon peek-client-list)
             (peek-send-state-ignore-errors httpcon)))
       (peek-private httpcon buffer-name)))
   (elnode-defer-now 'peek-long-poll-receive))
