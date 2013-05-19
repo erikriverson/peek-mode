@@ -1,17 +1,22 @@
 
 * peek-mode
 ** Introduction
- peek-mode is a minor mode that publishes live Emacs buffers through
- an [[http://elnode.org/][elnode]] server. This means you can view your emacs buffers in a web
- browser as they change. Toggling on peek-mode in a buffer will
- publish it to the server. To unpublish a buffer, toggle peek-mode
- off. (`M-x peek-mode` does the toggle.)
+peek-mode is a minor mode that publishes live Emacs buffers through an
+[[http://elnode.org/][elnode]] server. This means you can view your emacs buffers in a web
+browser as they change. To view buffers, you must /publish/
+them. Toggling on peek-mode in a buffer will publish it to the
+server. To unpublish a buffer, toggle peek-mode off. (`M-x peek-mode`
+does the toggle.)
 
- peek-mode is (very very!) largely based on Brian Taylor's
- <el.wubo@gmail.com> [[https://github.com/netguy204/imp.el][impatient-mode]] . However, impatient-mode does not
- use elnode, but rather a different emacs httpd backend
- <https://github.com/skeeto/emacs-http-server>. I consider peek-mode
- as "impatient-mode ported to elnode".
+This behavior is currently most interesting when the buffer you are
+peeking at is an HTML buffer. The browser will render the html in real
+time as you make changes.
+
+peek-mode is (very very!) largely based on Brian Taylor's
+<el.wubo@gmail.com> [[https://github.com/netguy204/imp.el][impatient-mode]] . However, impatient-mode does not
+use elnode, but rather a different emacs httpd backend
+<https://github.com/skeeto/emacs-http-server>. I consider peek-mode
+as "impatient-mode ported to elnode".
 
 ** Installation 
 *** How to install elnode in less than a minute! 
@@ -49,10 +54,19 @@ To start the elnode server on port 8008 on your local machine:
   (elnode-start 'peek-mode-dispatcher-handler :port 8008 :host "localhost")
 #+END_EXAMPLE
 
-To test, try enabling peek-mode in your *scratch* buffer: `M-x peek-mode`. 
+To test, try enabling peek-mode in any buffer you have open (see note
+in [[Limitations]] below though).  Just visit a buffer and type `M-x
+peek-mode`.
 
 Then launch a web browser, and visit
 http://localhost:8008/peek/. There will be a listing of all the
 buffers that currently have peek-mode enabled. Click on one to view
-it, then go back to emacs and make some change in that buffer. You
+it, then go back to emacs and make some changes in that buffer. You
 should see the changes immediately reflected in the browser.
+
+** Limitations 
+Currently, this only seems to work if your buffer has a file extension
+(i.e., a '.' in the buffer name). I'm looking into why. For example,
+peek-mode will not work on your \*scratch\* buffer, but it would work on
+a buffer called scratch.txt.
+
