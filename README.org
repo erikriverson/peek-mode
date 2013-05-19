@@ -55,7 +55,7 @@ To start the elnode server on port 8008 on your local machine:
 #+END_EXAMPLE
 
 To test, try enabling peek-mode in any buffer you have open (see note
-in [[Limitations]] below though).  Just visit a buffer and type `M-x
+in `Limitations` below though).  Just visit a buffer and type `M-x
 peek-mode`.
 
 Then launch a web browser, and visit
