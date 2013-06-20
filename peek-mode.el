@@ -101,10 +101,11 @@
                     "Enable <code>peek-mode</code> in buffers to add them to this list."
                     "</body></html>")))
  
+
 (defun peek-live-buffer (httpcon)          
   "Serve up the shim that lets us watch a buffer change"
   (let* ((path (elnode-http-pathinfo httpcon))
-                (index (expand-file-name "index.html" peek-shim-root))
+	 (index (expand-file-name "index.html" peek-shim-root))
          (parts (cdr (split-string path "/")))
          (buffer-name (nth 2 parts))
          (file (mapconcat 'identity (nthcdr 3 parts) "/"))
@@ -126,11 +127,35 @@
                     (elnode-send-file httpcon full-file-name))))
      (t (peek-buffer-enabled-p buffer)
                 (elnode-send-file httpcon index)))))
+
  
 (defconst peek-mode-urls
   '(("peek/$" . peek-buffer-list-handler)
     ("peek/buffer/.*$" . peek-long-poll-handler)
+    ("peek/live/.*js$" . peek-live-js-handler)
     ("peek/live/.*$" . peek-live-buffer-handler)))
+
+(defun peek-live-js-handler (httpcon)
+  (let* ((path (elnode-http-pathinfo httpcon))
+         (parts (cdr (split-string path "/")))
+         (buffer-name (nth 2 parts))
+         (file (mapconcat 'identity (nthcdr 3 parts) "/"))
+         (buffer (get-buffer file))
+         (buffer-file (buffer-file-name buffer))
+         (buffer-dir (and buffer-file (file-name-directory buffer-file)))
+	 (full-file-name (expand-file-name file buffer-dir)))
+
+    (add-to-list 'peek-related-files full-file-name)
+    
+    (elnode-http-start httpcon 200 '("Cache-Control" . "no-cache")
+		       '("Content-Type" . "application/javascript")
+                       '("Connection" . "keep-alive" ))
+    (elnode-http-return httpcon
+			(save-excursion 
+			  (set-buffer buffer)
+			  (buffer-substring-no-properties 
+			   (point-min) (point-max))))))
+
  
 (defun peek-buffer-list-handler (httpcon)
    (peek-serve-buffer-list httpcon))
@@ -140,7 +165,7 @@
  
 (defun peek-live-buffer-handler (httpcon)
    (peek-live-buffer httpcon))
- 
+
 (defun peek-mode-dispatcher-handler (httpcon)
   (elnode-dispatcher httpcon peek-mode-urls))
  

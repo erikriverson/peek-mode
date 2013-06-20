@@ -4,18 +4,29 @@
   </head>
 
   <body>
-    <div id="content" name="content"></div>
+
+
+    <iframe id="content" name="content" frameborder="0" marginheight="0" marginwidth="0" width="100%" height="100%" scrolling="auto">
+    </iframe>
 
     <script type="text/javascript">
       var buffer = window.location.pathname.split('/')[3];
       var current_id = "-1";
       $('head').append($('<title/>').text(decodeURI(buffer)));
 
+      var printIframe = function(data) {
+        var iframeJQ = $('#content');
+	var doc = iframeJQ[0].contentDocument; 
+        doc.open();
+        doc.write(data);
+        doc.close();
+      };
+
       var updateBuffer = function(newText) {
         var spaceIdx = newText.indexOf(' ');
         current_id = newText.substr(0, spaceIdx);
         var html_string = newText.substr(spaceIdx + 1);
-        document.getElementById("content").innerHTML = html_string; 
+	printIframe(html_string);
       };
 
       var refresh = function() {
