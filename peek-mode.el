@@ -140,19 +140,20 @@
          (parts (cdr (split-string path "/")))
          (buffer-name (nth 2 parts))
          (file (mapconcat 'identity (nthcdr 3 parts) "/"))
+	 (master-buffer (get-buffer buffer-name))
          (buffer (get-buffer file))
          (buffer-file (buffer-file-name buffer))
          (buffer-dir (and buffer-file (file-name-directory buffer-file)))
 	 (full-file-name (expand-file-name file buffer-dir)))
 
-    (add-to-list 'peek-related-files full-file-name)
+    (with-current-buffer master-buffer
+      (add-to-list 'peek-related-files full-file-name))
     
     (elnode-http-start httpcon 200 '("Cache-Control" . "no-cache")
 		       '("Content-Type" . "application/javascript")
                        '("Connection" . "keep-alive" ))
     (elnode-http-return httpcon
-			(save-excursion 
-			  (set-buffer buffer)
+			(with-current-buffer buffer 
 			  (buffer-substring-no-properties 
 			   (point-min) (point-max))))))
 
